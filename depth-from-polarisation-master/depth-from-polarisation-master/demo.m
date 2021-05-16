@@ -1,5 +1,34 @@
-% Load raw images, mask and specular mask
-load sampleData.mat
+path = "C:\Users\lenna\Desktop\BA\code\results\Basler\led";
+names = ["0_deg.png","45_deg.png","90_deg.png","135_deg.png"];
+
+
+if(example_data)
+    % Load raw images, mask and specular mask
+    load sampleData.mat
+else
+    %% Stack the image of four polarization angles into an image of four channels
+    for i = [1, 2, 3, 4]
+        images(:, :, i) = imread(path + names(i));
+    end
+
+    %% Assign polarizaton angles to corresponding channels
+    angles = [0, 45, 90, 135] * pi / 180;
+
+    %% May create a mask for a region of interest
+    use_fg_threshold = false;
+    mask = ones(size(images(:, :, 1)));
+    if ( use_fg_threshold )
+      image_avg = mean(double(images), 3);
+      fg_threshold = 10;
+      mask(image_avg < fg_threshold)  = 0;
+      mask(image_avg >=fg_threshold)  = 1; % foreground
+    end
+    mask = logical(mask);
+    if ( use_fg_threshold )
+        figure('Name','Mask', 'NumberTitle', 'off'); imagesc(mask)
+    end
+
+end
 
 % Estimate polarisation image from captured images
 [ rho_est,phi_est,Iun_est ] = PolarisationImage( images,angles,mask,'linear' );
