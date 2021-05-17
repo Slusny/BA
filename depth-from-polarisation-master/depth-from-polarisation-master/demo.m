@@ -4,6 +4,7 @@ names = ["0_deg.png","45_deg.png","90_deg.png","135_deg.png"];
 example_data = false;
 threshold_mask = false;
 drawing_mask = true;
+nonlinear = false;
 
 addpath("utils")
 if(example_data)
@@ -42,16 +43,20 @@ end
 
 % Estimate polarisation image from captured images
 if (threshold_mask || drawing_mask)
-    [ rho_est,phi_est,Iun_est ] = PolarisationImage( images,angles,mask,'nonlinear' );
+    if(nonlinear)
+        [ rho_est,phi_est,Iun_est ] = PolarisationImage( images,angles,mask,'nonlinear' );
+    else
+        [ rho_est,phi_est,Iun_est ] = PolarisationImage( images,angles,mask,'linear' );
+    end
 else 
     [ rho_est,phi_est,Iun_est ] = PolarisationImage( images,angles );
 end
-figure('Name','Rho', 'NumberTitle', 'off'); imshow(rho_est); colorbar % < 2 // für nonlinear max 0.8138
-figure('Name','Phi', 'NumberTitle', 'off'); imshow(phi_est); colorbar % < 4 // für nonlinear max 3.1416
+figure('Name','Rho', 'NumberTitle', 'off'); imshow(rho_est); c = colorbar;c. Label.String = 'percent'; % < 2 // für nonlinear max 0.8138
+figure('Name','Phi', 'NumberTitle', 'off'); imshow(phi_est/3.1416); colorbar('Ticks',[0,0.25,0.5,0.75,1],'TickLabels',{'0°','45°','90°','135°','180°'}) % < 4 // für nonlinear max 3.1416
 figure('Name','Iun', 'NumberTitle', 'off'); imshow(Iun_est); colorbar
 
-prozent = Iun_est .\ imread(path + names(1)) * 100;
-figure('Name','Iun  pro', 'NumberTitle', 'off'); imshow(prozent); colorbar
+%prozent = Iun_est .\ imread(path + names(1)) * 100;
+%figure('Name','Iun  pro', 'NumberTitle', 'off'); imshow(prozent); colorbar
 
 % Assume refractive index = 1.5
 n = 1.5;
