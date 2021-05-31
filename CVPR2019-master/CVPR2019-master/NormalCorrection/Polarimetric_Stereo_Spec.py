@@ -8,14 +8,15 @@ from common.InfereMonitor import InfereMonitor
 
 if __name__ == '__main__':
     data = sio.loadmat('../data/horse_disparity_median.mat')
+    #data = sio.loadmat('../../../depth-from-polarisation-master\depth-from-polarisation-master/data.mat')
 
     polAng = data['polAng'].ravel()
-    depthmap = data['depthmap']
+    #depthmap = data['depthmap']
     cam1 = data['cam1'][0][0]
     mask1 = cam1['mask']
     specmask = cam1['specmask']
 
-    P1 = cam1['P']
+    #P1 = cam1['P']
     Iun = cam1['Iun_est']
     rho = cam1['rho_est']
     phi = cam1['phi_est']
