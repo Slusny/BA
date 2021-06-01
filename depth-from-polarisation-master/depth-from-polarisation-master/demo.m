@@ -1,11 +1,12 @@
 clear cam1
-path = "C:\Users\lennart\Desktop\BA\BA\results\Basler\led\";
-names = ["0_deg.png","45_deg.png","90_deg.png","135_deg.png"];
+base_path = "Z:\Students\lslusny\datasets\Knie\v2\x";
+path = base_path + "\data\cam0\grey\";
+names = ["pol_0°.png","pol_45°.png","pol_90°.png","pol_135°.png"];
 
 example_data = false;
 threshold_mask = false;
 drawing_mask = false;
-drawing_spec = false;
+drawing_spec = true;
 nonlinear = false;
 
 addpath("utils")
@@ -118,6 +119,10 @@ phi_est_combined = phi_est;
 phi_est_combined(spec)=mod(phi_est(spec)+pi/2,pi);
 figure('Name','Theta', 'NumberTitle', 'off'); imshow(theta_est_combined); colorbar
 
+if(~drawing_spec)
+    theta_est_spec = zeros(size(L));
+end
+
 % Estimate light source direction from diffuse pixels (note that you might
 [ s,T,B ] = findLight( theta_est_combined,phi_est,Iun_est,mask&~spec,3 );
 
@@ -135,12 +140,12 @@ cam1.mask = mask;
 cam1.specmask = specmask;
 
 % dings
-N_guide_x = readmatrix("Z:\Students\lslusny\datasets\Basler\v5\x\lumione_pc\N_guide_x.csv");
+N_guide_x = readmatrix(base_path + "\lumione_pc\N_guide_x.csv");
 N_guide_x(:,:,3) = N_guide_x;
 N_guide = N_guide_x;
-N_guide_y = readmatrix("Z:\Students\lslusny\datasets\Basler\v5\x\lumione_pc\N_guide_y.csv");
+N_guide_y = readmatrix(base_path + "\lumione_pc\N_guide_y.csv");
 N_guide(:,:,2) = N_guide_y;
-N_guide_z = readmatrix("Z:\Students\lslusny\datasets\Basler\v5\x\lumione_pc\N_guide_z.csv");
+N_guide_z = readmatrix(base_path + "\lumione_pc\N_guide_z.csv");
 N_guide(:,:,3) = N_guide_z;
 
 example = load("../../CVPR2019-master/CVPR2019-master/data/horse_disparity_median.mat");
@@ -157,7 +162,8 @@ for i=1:size(N_guide,1)
 end
 imshow(test);
 
-save('data', 'polAng','cam1', 'N_guide')
+save(base_path + "\lumione_pc\data", 'polAng','cam1', 'N_guide')
+disp("wrote data");
 
 % Run linear height from polarisation
 [ height ] = HfPol( theta_est_combined,min(1,Iun_est),phi_est_combined,s,mask,false,spec );
