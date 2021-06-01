@@ -1,11 +1,11 @@
 clear cam1
-path = "C:\Users\lenna\Desktop\BA\code\results\Basler\led\";
+path = "C:\Users\lennart\Desktop\BA\BA\results\Basler\led\";
 names = ["0_deg.png","45_deg.png","90_deg.png","135_deg.png"];
-%{
+
 example_data = false;
 threshold_mask = false;
-drawing_mask = true;
-drawing_spec = true;
+drawing_mask = false;
+drawing_spec = false;
 nonlinear = false;
 
 addpath("utils")
@@ -22,6 +22,7 @@ else
     angles = [0, 45, 90, 135] * pi / 180;
 
     %% May create a mask for a region of interest
+    L = imread(path + names(1));
     if ( threshold_mask )
         mask = ones(size(images(:, :, 1)));
         image_avg = mean(double(images), 3);
@@ -30,23 +31,26 @@ else
         mask(image_avg >=fg_threshold)  = 1; % foreground
         mask = logical(mask);
         figure('Name','Threshold Mask', 'NumberTitle', 'off'); imagesc(mask)
-    end
-    
-    if (drawing_mask)
-        L = imread(path + names(1));
+        
+    elseif  (drawing_mask)
         figure('Name','Drawing Mask', 'NumberTitle', 'off');imshow(L)
         h1 = drawpolygon();
         roiPoints = h1.Position;
         mask = poly2mask(roiPoints(:,1),roiPoints(:,2),size(L,1),size(L,2));
         %figure('Name','Drawing Mask', 'NumberTitle', 'off'); imshow(mask)
+    else
+        mask = logical(ones(size(L)));
     end
-    if (drawing_spec)
-        L = imread(path + names(1));
+        
+    if  (drawing_spec)
         figure('Name','Specular Mask', 'NumberTitle', 'off');imshow(L)
         h1 = drawpolygon();
         roiPoints = h1.Position;
         spec = poly2mask(roiPoints(:,1),roiPoints(:,2),size(L,1),size(L,2));
         %figure('Name','Specular Mask', 'NumberTitle', 'off'); imshow(mask)
+        
+    else
+        spec = logical(zeros(size(L));
     end
 
 end
@@ -81,7 +85,7 @@ if(threshold_mask || drawing_mask)
     disp_img = disp_img2;
 end
 figure('Name','Phi HSV', 'NumberTitle', 'off');imshow(disp_img,[]);myColorMap = hsv(256);colormap(myColorMap);colorbar('Ticks',[0,0.25,0.5,0.75,1],'TickLabels',{'0°','45°','90°','135°','180°'});
-%}
+
 %{
 [x1,x2]=meshgrid(linspace(0,1,256),linspace(0,1,256));
 img(:,:,1)=x1;
@@ -91,7 +95,7 @@ img(:,:,3)=x2;
 imgRGB=hsv2rgb(img); %for display purposes
 imshow(imgRGB,[])
 %}
-%{
+
 %prozent = Iun_est .\ imread(path + names(1)) * 100;
 %figure('Name','Iun  pro', 'NumberTitle', 'off'); imshow(prozent); colorbar
 
@@ -129,7 +133,7 @@ cam1.theta_est_diffuse=theta_est_diffuse;
 cam1.theta_est_spec=theta_est_spec;
 cam1.mask = mask;
 cam1.specmask = specmask;
-%}
+
 % dings
 N_guide_x = readmatrix("Z:\Students\lslusny\datasets\Basler\v5\x\lumione_pc\N_guide_x.csv");
 N_guide_x(:,:,3) = N_guide_x;
@@ -147,11 +151,13 @@ figure;
 for i=1:size(N_guide,1)
     for j=1:size(N_guide,2)
         if(N_guide(i,j,1) ~= 0 || N_guide(i,j,2) ~= 0 || N_guide(i,j,3) ~= 0)
-            
+            test(i,j) = 255;
+        end
     end
 end
+imshow(test);
 
-save('data', 'polAng','cam1')
+save('data', 'polAng','cam1', 'N_guide')
 
 % Run linear height from polarisation
 [ height ] = HfPol( theta_est_combined,min(1,Iun_est),phi_est_combined,s,mask,false,spec );

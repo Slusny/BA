@@ -4,8 +4,8 @@ names = ["0_deg.png","45_deg.png","90_deg.png","135_deg.png"];
 
 example_data = false;
 threshold_mask = false;
-drawing_mask = true;
-drawing_spec = true;
+drawing_mask = false;
+drawing_spec = false;
 nonlinear = false;
 
 addpath("utils")
@@ -22,6 +22,7 @@ else
     angles = [0, 45, 90, 135] * pi / 180;
 
     %% May create a mask for a region of interest
+    L = imread(path + names(1));
     if ( threshold_mask )
         mask = ones(size(images(:, :, 1)));
         image_avg = mean(double(images), 3);
@@ -30,23 +31,26 @@ else
         mask(image_avg >=fg_threshold)  = 1; % foreground
         mask = logical(mask);
         figure('Name','Threshold Mask', 'NumberTitle', 'off'); imagesc(mask)
-    end
-    
-    if (drawing_mask)
-        L = imread(path + names(1));
+        
+    elseif  (drawing_mask)
         figure('Name','Drawing Mask', 'NumberTitle', 'off');imshow(L)
         h1 = drawpolygon();
         roiPoints = h1.Position;
         mask = poly2mask(roiPoints(:,1),roiPoints(:,2),size(L,1),size(L,2));
         %figure('Name','Drawing Mask', 'NumberTitle', 'off'); imshow(mask)
+    else
+        mask = logical(ones(size(L)));
     end
-    if (drawing_spec)
-        L = imread(path + names(1));
+        
+    if  (drawing_spec)
         figure('Name','Specular Mask', 'NumberTitle', 'off');imshow(L)
         h1 = drawpolygon();
         roiPoints = h1.Position;
         spec = poly2mask(roiPoints(:,1),roiPoints(:,2),size(L,1),size(L,2));
         %figure('Name','Specular Mask', 'NumberTitle', 'off'); imshow(mask)
+        
+    else
+        spec = logical(zeros(size(L)));
     end
 
 end
