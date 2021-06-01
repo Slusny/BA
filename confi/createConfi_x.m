@@ -34,10 +34,10 @@ for i = 1:numel(N)
         pos = middle;
         displacement = "0.0000000";
     elseif sz_minus(2)>0
-        displacement = strcat("-",num2str(displacement_amount*step_size, '%.7f'));
+        displacement = strcat(num2str(displacement_amount*step_size, '%.7f'));
         pos = middle - displacement_amount;
     elseif sz_plus(2)>0
-        displacement = strcat(num2str(displacement_amount*step_size, '%.7f'));
+        displacement = strcat("-",num2str(displacement_amount*step_size, '%.7f'));
         pos = middle + displacement_amount;
     else
         continue
