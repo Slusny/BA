@@ -1,10 +1,10 @@
 %Variables
-base_path = "Z:\Students\lslusny\datasets\CombiTip\v2\x";
+base_path = "Z:\Students\lslusny\datasets\Knie\v2\x";
 pixel_size = 0.0000069; % in m;
 img_size_x = 1024;
 img_size_y = 1224;
 step_size = 0.002000; % in m;
-make_image = true;
+make_image = false;
 count = 0
 
 Cam_string = [];
