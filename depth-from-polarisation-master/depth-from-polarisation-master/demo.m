@@ -1,13 +1,18 @@
 clear cam1
+%{
 base_path = "Z:\Students\lslusny\datasets\Knie\v2\x";
 path = base_path + "\data\cam0\grey\";
 names = ["pol_0°.png","pol_45°.png","pol_90°.png","pol_135°.png"];
+%}
+base_path = "Z:\Students\lslusny\datasets\Basler\v5\x";
+path = base_path + "\data\cam20\mono\";
+names = ["0_deg.png","45_deg.png","90_deg.png","135_deg.png"];
 
 example_data = false;
 threshold_mask = false;
 drawing_mask = false;
-drawing_spec = true;
-nonlinear = false;
+drawing_spec = false;
+nonlinear = true;
 
 addpath("utils")
 if(example_data)
@@ -68,7 +73,7 @@ else
 end
 figure('Name','Rho', 'NumberTitle', 'off'); imshow(rho_est); c = colorbar;c. Label.String = 'percent'; % < 2 // für nonlinear max 0.8138
 figure('Name','Phi', 'NumberTitle', 'off'); imshow(phi_est/3.1416); %colorbar('Ticks',[0,0.25,0.5,0.75,1],'TickLabels',{'0°','45°','90°','135°','180°'}) % < 4 // für nonlinear max 3.1416
-figure('Name','Iun', 'NumberTitle', 'off'); imshow(Iun_est); colorbar
+figure('Name','Iun', 'NumberTitle', 'off'); imshow(Iun_est/255); colorbar
 
 hsv_img = zeros(size(phi_est,1),size(phi_est,2),3);
 for i=1:size(phi_est,1)
@@ -112,13 +117,17 @@ n = 1.5;
 
 % Compute angles, taking into account different model for specular pixels
 theta_est_diffuse = rho_diffuse(rho_est,n);
-theta_est_spec = rho_spec(rho_est(spec),n);
+theta_est_spec = rho_spec(rho_est(spec),n); %rho_spec(rho_est.*spec)
 theta_est_combined = theta_est_diffuse;
 theta_est_combined(spec)=theta_est_spec;
 phi_est_combined = phi_est;
 phi_est_combined(spec)=mod(phi_est(spec)+pi/2,pi);
 figure('Name','Theta', 'NumberTitle', 'off'); imshow(theta_est_combined); colorbar
-
+%
+temp = theta_est_spec;
+theta_est_spec = zeros(size(L));
+theta_est_spec(spec) = temp;
+%
 if(~drawing_spec)
     theta_est_spec = zeros(size(L));
 end
@@ -169,5 +178,10 @@ disp("wrote data");
 [ height ] = HfPol( theta_est_combined,min(1,Iun_est),phi_est_combined,s,mask,false,spec );
 
 % Visualise
+mask = height < 20;
+mask2 = height > -20;
+mask = mask2+mask.*(mask2==0);
+dispHeight = zeros(size(L));
+dispHeight(mask) = height(mask);
 figure;
 surf(height,'EdgeColor','none','FaceColor',[0 0 1],'FaceLighting','gouraud','AmbientStrength',0,'DiffuseStrength',1); axis equal; light

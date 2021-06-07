@@ -8,7 +8,7 @@ from common.InfereMonitor import InfereMonitor
 
 if __name__ == '__main__':
     #data = sio.loadmat('../data/horse_disparity_median.mat')
-    data = sio.loadmat('../../../depth-from-polarisation-master\depth-from-polarisation-master/data.mat')
+    data = sio.loadmat(r"Z:\Students\lslusny\datasets\Knie\v2\x\lumione_pc\data.mat")
     #data = sio.loadmat('../../../depth-from-polarisation-master\depth-from-polarisation-master/data.mat')
 
     polAng = data['polAng'].ravel()
