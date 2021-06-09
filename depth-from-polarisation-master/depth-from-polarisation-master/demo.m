@@ -4,15 +4,15 @@ base_path = "Z:\Students\lslusny\datasets\Knie\v2\x";
 path = base_path + "\data\cam0\grey\";
 names = ["pol_0°.png","pol_45°.png","pol_90°.png","pol_135°.png"];
 %}
-base_path = "Z:\Students\lslusny\datasets\Basler\v5\x";
-path = base_path + "\data\cam20\mono\";
+base_path = "Z:\Students\lslusny\datasets\\Kobel\v4\x";
+path = base_path + "\data\cam15\mono\";
 names = ["0_deg.png","45_deg.png","90_deg.png","135_deg.png"];
 
 example_data = false;
 threshold_mask = false;
 drawing_mask = false;
-drawing_spec = false;
-nonlinear = true;
+drawing_spec = true;
+nonlinear = false;
 
 addpath("utils")
 if(example_data)
