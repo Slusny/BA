@@ -5,10 +5,11 @@ import opengm
 import scipy.io as sio
 import matplotlib.pyplot as matplot
 from common.InfereMonitor import InfereMonitor
+import sys
 
 if __name__ == '__main__':
     #data = sio.loadmat('../data/horse_disparity_median.mat')
-    data = sio.loadmat(r"Z:\Students\lslusny\datasets\Knie\v2\x\lumione_pc\data.mat")
+    data = sio.loadmat(sys.argv[1])#Z:\Students\lslusny\datasets\Kobel\v4\x\lumione_pc\data.mat
     #data = sio.loadmat('../../../depth-from-polarisation-master\depth-from-polarisation-master/data.mat')
 
     polAng = data['polAng'].ravel()
@@ -214,7 +215,7 @@ if __name__ == '__main__':
 
 
     inf = opengm.inference.BeliefPropagation(gm, accumulator='minimizer',
-                                             parameter=opengm.InfParam(steps=100, convergenceBound=0.001, damping=0.5))
+                                             parameter=opengm.InfParam(steps=3, convergenceBound=0.001, damping=0.5))#100steps
     #
     # inf = opengm.inference.TreeReweightedBp(gm, accumulator='minimizer',
     #                                         parameter=opengm.InfParam(steps=100, convergenceBound=0.001))
@@ -270,4 +271,4 @@ if __name__ == '__main__':
     matplot.title('newmask')
     matplot.show()
 
-    sio.savemat('results/goat_corrected_normal_large_smooth.mat', {'normal1': N_reco_full, 'specmask': new_specmask})
+    sio.savemat("results/" + sys.argv[2], {'normal1': N_reco_full, 'specmask': new_specmask})
