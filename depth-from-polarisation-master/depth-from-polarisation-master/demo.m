@@ -73,7 +73,7 @@ else
 end
 figure('Name','Rho', 'NumberTitle', 'off'); imshow(rho_est); c = colorbar;c. Label.String = 'percent'; % < 2 // für nonlinear max 0.8138
 figure('Name','Phi', 'NumberTitle', 'off'); imshow(phi_est/3.1416); %colorbar('Ticks',[0,0.25,0.5,0.75,1],'TickLabels',{'0°','45°','90°','135°','180°'}) % < 4 // für nonlinear max 3.1416
-figure('Name','Iun', 'NumberTitle', 'off'); imshow(Iun_est/255); colorbar
+figure('Name','Iun', 'NumberTitle', 'off'); imshow(Iun_est, []); colorbar
 
 hsv_img = zeros(size(phi_est,1),size(phi_est,2),3);
 for i=1:size(phi_est,1)
