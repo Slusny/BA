@@ -6,8 +6,10 @@ import scipy.io as sio
 import matplotlib.pyplot as matplot
 from common.InfereMonitor import InfereMonitor
 import sys
+import pdb
 
 if __name__ == '__main__':
+    pdb.set_trace()
     if(len(sys.argv) < 3 ):
         print("please specify the data location as first argument and the name of the output as a second argument to this script")
     #data = sio.loadmat('../data/horse_disparity_median.mat')
@@ -273,4 +275,4 @@ if __name__ == '__main__':
     matplot.title('newmask')
     matplot.show()
 
-    sio.savemat("results/" + sys.argv[2], {'normal1': N_reco_full, 'specmask': new_specmask})
+    sio.savemat(sys.argv[2], {'normal1': N_reco_full, 'specmask': new_specmask})

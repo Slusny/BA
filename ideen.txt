@@ -1,0 +1,18 @@
+* Pointcloud nicht im Image raster gespeichert.
+
+* PCD file geladen in Matlab hat 1224x1024 statt 1024x1224
+
+* In compute_pointcloud, die run_depth_estimation macht pcl.at<cv::Vec3f>(row, col) = {0.0f, 0.0f, 0.0f};
+  Ist da ein Unterschied zu 
+  for (r = 0; r < height; r++)
+			{
+				for (c = 0; c < width; c++)
+				{
+					fprintf(out, "%f ", xyz[(r * width + c) * 3]);
+    wie die PCD erstellt wird?
+
+* Wenn die Normalen berechnet werden, sind sie dann an der selben Stelle in der pcl wie die Punkte
+
+* Generell sind die Y und X werte in der PCD durcheinander
+
+* Pointcloud doesn't need to be filtered, since MatToPcl only pushes non zero values
