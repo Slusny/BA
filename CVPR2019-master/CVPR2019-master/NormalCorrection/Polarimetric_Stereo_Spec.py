@@ -7,13 +7,54 @@ import matplotlib.pyplot as matplot
 from common.InfereMonitor import InfereMonitor
 import sys
 import pdb
+import csv
+
+#from common import pcd
+import common.pcd as pcd
+
+def create_PolNormal_pcd(N_diffuse):
+    #pc = pcd.PointCloud.from_array(N_spec1)
+    print("start cutting down Normals")
+    data_x = np.array([])
+    data_y = np.array([])
+    data_z = np.array([])
+    with open(sys.argv[1] + "\\N_guide_z.csv") as csvdatei:
+        csv_reader_object = csv.reader(csvdatei)
+        i = 0
+        for row in csv_reader_object:
+            j = 0
+            for num in row:
+                if(float(num) != 0):
+                    data_x = np.append(data_x,N_diffuse[i,j,0])
+                    data_y = np.append(data_y,N_diffuse[i,j,1])
+                    data_z = np.append(data_z,N_diffuse[i,j,2])
+                j += 1
+            i += 1
+
+    #data_x = N_diffuse[:,:,0]
+    #data_y = N_diffuse[:,:,1]
+    #data_z = N_diffuse[:,:,2]
+    #data_x = np.reshape(data_x,(data_x.shape[0]*data_x.shape[1],1))
+    #data_y = np.reshape(data_y,(data_y.shape[0]*data_y.shape[1],1))
+    #data_z = np.reshape(data_z,(data_z.shape[0]*data_z.shape[1],1))
+
+    x = np.array([data_x])
+    y = np.array([data_y])
+    z = np.array([data_z])
+    data = np.hstack((x.T,y.T,z.T))
+    pc = pcd.make_xyz_point_cloud(data)
+    pc.save(sys.argv[1] + "\\pol_normals.pcd")
+    print("done writing Normals")
+    sio.savemat(sys.argv[2], {'normal1': N_diffuse, 'specmask': specmask})
+    return
 
 if __name__ == '__main__':
     pdb.set_trace()
-    if(len(sys.argv) < 3 ):
-        print("please specify the data location as first argument and the name of the output as a second argument to this script")
+    if(len(sys.argv) < 2 ):
+        print("please specify the data location as first argument")
+        exit() 
     #data = sio.loadmat('../data/horse_disparity_median.mat')
-    data = sio.loadmat(sys.argv[1])#Z:\Students\lslusny\datasets\Kobel\v4\x\lumione_pc\data.mat
+    data = sio.loadmat(sys.argv[1]+"\\data.mat")#Z:\Students\lslusny\datasets\Kobel\v4\x\lumione_pc\data.mat
     #data = sio.loadmat('../../../depth-from-polarisation-master\depth-from-polarisation-master/data.mat')
 
     polAng = data['polAng'].ravel()
@@ -45,6 +86,11 @@ if __name__ == '__main__':
 
     N_spec1 = CoordinateUtil.polar2normal(theta_spec, phi + np.pi / 2)
     N_spec2 = CoordinateUtil.polar2normal(theta_spec, phi - np.pi / 2)
+
+    #create_PolNormal_pcd(N_diffuse)
+    saved_normals = N_diffuse.copy()
+    saved_normals[:,:,2][mask1==0] = 0
+    np.save(sys.argv[1]+"\\pol_normals.npy",saved_normals)
     # N_spec3 = CoordinateUtil.polar2normal(theta_spec[..., 1], phi + np.pi / 2)
     # N_spec4 = CoordinateUtil.polar2normal(theta_spec[..., 1], phi - np.pi / 2)
 
@@ -73,6 +119,7 @@ if __name__ == '__main__':
     # matplot.show()
 
     ##=================> Optimised based on opengm
+    print("Start calculation")
 
     noofNodes = np.sum(mask1)
     nodeStates = np.ones(noofNodes, dtype=opengm.index_type) * 4  # Possible answer are N or T*N
@@ -275,4 +322,4 @@ if __name__ == '__main__':
     matplot.title('newmask')
     matplot.show()
 
-    sio.savemat(sys.argv[2], {'normal1': N_reco_full, 'specmask': new_specmask})
+    sio.savemat(sys.argv[1] + "\\corrected_normals.mat", {'normal1': N_reco_full, 'specmask': new_specmask})

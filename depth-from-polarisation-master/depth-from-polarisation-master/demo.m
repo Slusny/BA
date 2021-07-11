@@ -5,12 +5,14 @@ path = base_path + "\data\cam0\grey\";
 names = ["pol_0°.png","pol_45°.png","pol_90°.png","pol_135°.png"];
 %}
 base_path = "Z:\Students\lslusny\datasets\Defect1\v7\x";
+subfolder = "\th0.9_NN1001";
 path = base_path + "\data\cam10\mono\";
+
 names = ["0_deg.png","45_deg.png","90_deg.png","135_deg.png"];
 
 example_data = false;
 threshold_mask = false;
-drawing_mask = false;
+drawing_mask = true;
 drawing_spec = true;
 nonlinear = false;
 
@@ -149,12 +151,12 @@ cam1.mask = mask;
 cam1.specmask = specmask;
 
 % dings
-N_guide_x = readmatrix(base_path + "\lumione_pc\N_guide_x.csv");
+N_guide_x = readmatrix(base_path + "\lumione_pc"+subfolder+"\N_guide_x.csv");
 N_guide_x(:,:,3) = N_guide_x;
 N_guide = N_guide_x;
-N_guide_y = readmatrix(base_path + "\lumione_pc\N_guide_y.csv");
+N_guide_y = readmatrix(base_path + "\lumione_pc"+subfolder+"\N_guide_y.csv");
 N_guide(:,:,2) = N_guide_y;
-N_guide_z = readmatrix(base_path + "\lumione_pc\N_guide_z.csv");
+N_guide_z = readmatrix(base_path + "\lumione_pc"+subfolder+"\N_guide_z.csv");
 N_guide(:,:,3) = N_guide_z;
 
 example = load("../../CVPR2019-master/CVPR2019-master/data/horse_disparity_median.mat");
@@ -171,7 +173,7 @@ for i=1:size(N_guide,1)
 end
 imshow(test);
 
-save(base_path + "\lumione_pc\data", 'polAng','cam1', 'N_guide')
+save(base_path + "\lumione_pc"+subfolder+"\data", 'polAng','cam1', 'N_guide')
 disp("wrote data");
 
 % Run linear height from polarisation

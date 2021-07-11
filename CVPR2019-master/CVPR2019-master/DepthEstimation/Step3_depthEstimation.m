@@ -8,6 +8,8 @@ addpath('../data')
 %% Load and set datas
 load('horse_corrected_normal_Large.mat');  % Corrected normal from Graphic model
 load('horse_disparity_large.mat');         % Disparity map from stereo
+%load('Z:\Students\lslusny\datasets\Defect1\v7\x\lumione_pc\th0.9_NN1001\data.mat');
+%load('Z:\Students\lslusny\datasets\Defect1\v7\x\lumione_pc\th0.9_NN1001\pol_normals.mat');
 [rows,cols]=size(cam1.mask);
 
 % Only use one view for reconstruction
