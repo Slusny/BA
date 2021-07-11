@@ -1,5 +1,5 @@
 %Variables
-base_path = "Z:\Students\lslusny\datasets\Knie\v2\x";
+base_path = "Z:\Students\lslusny\datasets\Kugel\v1\x";
 pixel_size = 0.0000069; % in m;
 img_size_x = 1024;
 img_size_y = 1224;

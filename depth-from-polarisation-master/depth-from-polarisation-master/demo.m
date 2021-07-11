@@ -4,13 +4,13 @@ base_path = "Z:\Students\lslusny\datasets\Knie\v2\x";
 path = base_path + "\data\cam0\grey\";
 names = ["pol_0°.png","pol_45°.png","pol_90°.png","pol_135°.png"];
 %}
-base_path = "Z:\Students\lslusny\datasets\Defect1\v7\x";
-path = base_path + "\data\cam10\mono\";
+base_path = "Z:\Students\lslusny\datasets\Kugel\v2_point\x";
+path = base_path + "\data\cam0\mono0\";
 names = ["0_deg.png","45_deg.png","90_deg.png","135_deg.png"];
 
 example_data = false;
 threshold_mask = false;
-drawing_mask = false;
+drawing_mask = true;
 drawing_spec = true;
 nonlinear = false;
 
@@ -147,24 +147,35 @@ cam1.theta_est_diffuse=theta_est_diffuse;
 cam1.theta_est_spec=theta_est_spec;
 cam1.mask = mask;
 cam1.specmask = specmask;
-
+%{
 % dings
-N_guide_x = readmatrix(base_path + "\lumione_pc\N_guide_x.csv");
-N_guide_x(:,:,3) = N_guide_x;
+N_guide_x_in = readmatrix(base_path + "\lumione_pc\N_guide_x.csv");
+N_guide_y_in = readmatrix(base_path + "\lumione_pc\N_guide_y.csv");
+N_guide_z_in = readmatrix(base_path + "\lumione_pc\N_guide_z.csv");
+
+N_guide_x_in(isnan(N_guide_x_in)) = 0;
+N_guide_y_in(isnan(N_guide_y_in)) = 0;
+N_guide_z_in(isnan(N_guide_z_in)) = 0;
+
+N_test(:,:,1) = N_guide_x_in;
+N_test(:,:,2) = N_guide_x_in;
+N_test(:,:,3) = N_guide_x_in;
+
+N_guide_x(:,:,1) = make_dense(N_guide_x_in,mask);
 N_guide = N_guide_x;
-N_guide_y = readmatrix(base_path + "\lumione_pc\N_guide_y.csv");
-N_guide(:,:,2) = N_guide_y;
-N_guide_z = readmatrix(base_path + "\lumione_pc\N_guide_z.csv");
-N_guide(:,:,3) = N_guide_z;
+N_guide(:,:,2) = make_dense(N_guide_y_in,mask);
+N_guide(:,:,3) = make_dense(N_guide_z_in,mask);
+
+% make N_guide dense
 
 example = load("../../CVPR2019-master/CVPR2019-master/data/horse_disparity_median.mat");
 N = example.N_guide;
 
 test = zeros(size(N_guide,1),size(N_guide,2));
 figure;
-for i=1:size(N_guide,1)
-    for j=1:size(N_guide,2)
-        if(N_guide(i,j,1) ~= 0 || N_guide(i,j,2) ~= 0 || N_guide(i,j,3) ~= 0)
+for i=1:size(N_test,1)
+    for j=1:size(N_test,2)
+        if(N_test(i,j,1) ~= 0 || N_test(i,j,2) ~= 0 || N_test(i,j,3) ~= 0)
             test(i,j) = 255;
         end
     end
@@ -173,15 +184,95 @@ imshow(test);
 
 save(base_path + "\lumione_pc\data", 'polAng','cam1', 'N_guide')
 disp("wrote data");
-
+%}
 % Run linear height from polarisation
 [ height ] = HfPol( theta_est_combined,min(1,Iun_est),phi_est_combined,s,mask,false,spec );
 
 % Visualise
+%{
 mask = height < 20;
 mask2 = height > -20;
 mask = mask2+mask.*(mask2==0);
 dispHeight = zeros(size(L));
 dispHeight(mask) = height(mask);
 figure;
+%}
 surf(height,'EdgeColor','none','FaceColor',[0 0 1],'FaceLighting','gouraud','AmbientStrength',0,'DiffuseStrength',1); axis equal; light
+
+function [point_sum,total_sum,count] = search_inside(in,k,l,radius, point_sum, total_sum,count)
+    row_t = k-radius;
+    row_b = k+radius;
+    col_l = l-radius;
+    col_r = l+radius;
+    % left and right col
+    for i=row_t:row_b
+        if i<1 || i>size(in,1)
+            continue
+        end
+        %distance as weight
+        dist = sqrt(i^2 + radius^2);
+        %left
+        if col_l > 0
+            if in(i,col_l)
+                point_sum = point_sum + in(i,col_l)/dist;
+                total_sum = total_sum + 1/dist;
+                count = count + 1;
+            end
+        end
+        %right
+        if col_r <= size(in,1)
+            if in(i,col_r)
+                point_sum = point_sum + in(i,col_r)/dist;
+                total_sum = total_sum + 1/dist;
+                count = count + 1;
+            end
+        end
+    end
+    % top and bottom row
+    for j=col_l +1 :col_r - 1
+        if j<1 || j>size(in,2)
+            continue
+        end
+        %distance as weight
+        dist = sqrt(radius^2 + j^2);
+        %top
+        if row_t > 0
+            if in(row_t,j)
+                point_sum = point_sum + in(row_t,j)/dist;
+                total_sum = total_sum + 1/dist;
+                count = count + 1;
+            end
+        end
+        %bottom
+        if row_b <= size(in,2)
+            if in(row_b,j)
+                point_sum = point_sum + in(row_b,j)/dist;
+                total_sum = total_sum + 1/dist;
+                count = count + 1;
+            end
+        end
+    end
+
+end
+function [out] = make_dense(in,mask)
+    out = zeros(size(in));
+    out(mask) = in(mask);
+    value_mask = logical(in);
+    value_mask = (~value_mask) & mask; % leerstellen in maske
+    
+    for i=1:size(in,1)
+        for j=1:size(in,2)
+            if value_mask(i,j)
+                radius = 1;
+                count = 0;
+                total_sum = 0;
+                point_sum = 0;
+                while count < 6
+                    [point_sum,total_sum,count] = search_inside(in,i,j,radius, point_sum, total_sum,count);
+                    radius = radius + 1;
+                end
+                out(i,j) = point_sum/total_sum;
+            end
+        end
+    end
+end
