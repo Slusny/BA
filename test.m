@@ -1,4 +1,4 @@
-%in = load("C:\Users\lennart\Desktop\BA\BA\Discrete-normal-integration\data\bunny\pol_normals.mat");
+in = load("C:\Users\lennart\Desktop\BA\BA\Discrete-normal-integration\data\bunny\pol_normals.mat");
 %in = load("C:\Users\lennart\Desktop\BA\BA\Discrete-normal-integration\data\bunny\bunny_normal.mat");
 %v = load("C:\Users\lennart\Desktop\BA\BA\normal_integration-master\Datasets\vase.mat");
 

@@ -1,17 +1,27 @@
 clear cam1
-%{
-base_path = "Z:\Students\lslusny\datasets\Knie\v2\x";
-path = base_path + "\data\cam0\grey\";
-names = ["pol_0°.png","pol_45°.png","pol_90°.png","pol_135°.png"];
-%}
-base_path = "Z:\Students\lslusny\datasets\Kugel\v2_point\x";
-path = base_path + "\data\cam0\mono0\";
+
+dataset = "Glaskaraffe";
+
 names = ["0_deg.png","45_deg.png","90_deg.png","135_deg.png"];
+p.Knie.base_path = "Z:\Students\lslusny\datasets\Knie\v2\x";
+p.Knie.path = "\data\cam0\grey\";
+p.Kugel.base_path = "Z:\Students\lslusny\datasets\Kugel\v2_point\x";
+p.Kugel.path = "\data\cam0\mono0\";
+p.Defect1.base_path = "Z:\Students\lslusny\datasets\Defect1\v7\x";
+p.Defect1.path = "\data\cam10\mono\";
+p.Defect2.base_path = "Z:\Students\lslusny\datasets\Defect2\v6\x";
+p.Defect2.path = "\data\cam15\mono\";
+p.Glaskaraffe.base_path = "Z:\Students\lslusny\datasets\Glaskaraffe\v1\x";
+p.Glaskaraffe.path = "\data\cam15\mono\";
+
+base_path = p.(dataset).base_path;
+path = base_path + p.(dataset).path;
+
 
 example_data = false;
 threshold_mask = false;
-drawing_mask = true;
-drawing_spec = true;
+drawing_mask = false;
+drawing_spec = false;
 nonlinear = false;
 
 addpath("utils")
@@ -134,7 +144,7 @@ end
 
 % Estimate light source direction from diffuse pixels (note that you might
 [ s,T,B ] = findLight( theta_est_combined,phi_est,Iun_est,mask&~spec,3 );
-
+%s = [0,0.866,0.5];
 % Compute boundary prior azimuth angles and weight
 [ azi,Bdist ] = boundaryPrior( mask );
 
@@ -147,7 +157,9 @@ cam1.theta_est_diffuse=theta_est_diffuse;
 cam1.theta_est_spec=theta_est_spec;
 cam1.mask = mask;
 cam1.specmask = specmask;
-%{
+save("C:\Users\lennart\Desktop\BA\data_lin_Kugel_bigspec", 'polAng','cam1')
+
+
 % dings
 N_guide_x_in = readmatrix(base_path + "\lumione_pc\N_guide_x.csv");
 N_guide_y_in = readmatrix(base_path + "\lumione_pc\N_guide_y.csv");
@@ -181,10 +193,10 @@ for i=1:size(N_test,1)
     end
 end
 imshow(test);
-
-save(base_path + "\lumione_pc\data", 'polAng','cam1', 'N_guide')
+%{%}
+save(base_path + "\lumione_pc\data", 'polAng','cam1', 'N_test')
 disp("wrote data");
-%}
+
 % Run linear height from polarisation
 [ height ] = HfPol( theta_est_combined,min(1,Iun_est),phi_est_combined,s,mask,false,spec );
 
