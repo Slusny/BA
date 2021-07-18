@@ -1,6 +1,6 @@
 clear cam1
 
-dataset = "Glaskaraffe";
+dataset = "Adapterplatte_point";
 
 names = ["0_deg.png","45_deg.png","90_deg.png","135_deg.png"];
 p.Knie.base_path = "Z:\Students\lslusny\datasets\Knie\v2\x";
@@ -13,6 +13,12 @@ p.Defect2.base_path = "Z:\Students\lslusny\datasets\Defect2\v6\x";
 p.Defect2.path = "\data\cam15\mono\";
 p.Glaskaraffe.base_path = "Z:\Students\lslusny\datasets\Glaskaraffe\v1\x";
 p.Glaskaraffe.path = "\data\cam15\mono\";
+p.CombiTip_point.base_path = "Z:\Students\lslusny\datasets\CombiTip\v2_point\x";
+p.CombiTip_point.path = "\data\cam0\mono0\";
+p.Kobel_point.base_path = "Z:\Students\lslusny\datasets\Kobel\v2_point\x";
+p.Kobel_point.path = "\data\cam0\mono\";
+p.Adapterplatte_point.base_path = "Z:\Students\lslusny\datasets\Adapterplatte\v2_point_dunkel\x";
+p.Adapterplatte_point.path = "\data\cam0\mono0\";
 
 base_path = p.(dataset).base_path;
 path = base_path + p.(dataset).path;
@@ -20,9 +26,10 @@ path = base_path + p.(dataset).path;
 
 example_data = false;
 threshold_mask = false;
-drawing_mask = false;
+drawing_mask = true;
 drawing_spec = false;
 nonlinear = false;
+Do_N_guide = false;
 
 addpath("utils")
 if(example_data)
@@ -157,48 +164,50 @@ cam1.theta_est_diffuse=theta_est_diffuse;
 cam1.theta_est_spec=theta_est_spec;
 cam1.mask = mask;
 cam1.specmask = specmask;
-save("C:\Users\lennart\Desktop\BA\data_lin_Kugel_bigspec", 'polAng','cam1')
 
+if Do_N_guide
+    % dings
+    N_guide_x_in = readmatrix(base_path + "\lumione_pc\N_guide_x.csv");
+    N_guide_y_in = readmatrix(base_path + "\lumione_pc\N_guide_y.csv");
+    N_guide_z_in = readmatrix(base_path + "\lumione_pc\N_guide_z.csv");
 
-% dings
-N_guide_x_in = readmatrix(base_path + "\lumione_pc\N_guide_x.csv");
-N_guide_y_in = readmatrix(base_path + "\lumione_pc\N_guide_y.csv");
-N_guide_z_in = readmatrix(base_path + "\lumione_pc\N_guide_z.csv");
+    N_guide_x_in(isnan(N_guide_x_in)) = 0;
+    N_guide_y_in(isnan(N_guide_y_in)) = 0;
+    N_guide_z_in(isnan(N_guide_z_in)) = 0;
 
-N_guide_x_in(isnan(N_guide_x_in)) = 0;
-N_guide_y_in(isnan(N_guide_y_in)) = 0;
-N_guide_z_in(isnan(N_guide_z_in)) = 0;
+    N_test(:,:,1) = N_guide_x_in;
+    N_test(:,:,2) = N_guide_x_in;
+    N_test(:,:,3) = N_guide_x_in;
 
-N_test(:,:,1) = N_guide_x_in;
-N_test(:,:,2) = N_guide_x_in;
-N_test(:,:,3) = N_guide_x_in;
+    N_guide_x(:,:,1) = make_dense(N_guide_x_in,mask);
+    N_guide = N_guide_x;
+    N_guide(:,:,2) = make_dense(N_guide_y_in,mask);
+    N_guide(:,:,3) = make_dense(N_guide_z_in,mask);
 
-N_guide_x(:,:,1) = make_dense(N_guide_x_in,mask);
-N_guide = N_guide_x;
-N_guide(:,:,2) = make_dense(N_guide_y_in,mask);
-N_guide(:,:,3) = make_dense(N_guide_z_in,mask);
+    % make N_guide dense
 
-% make N_guide dense
+    example = load("../../CVPR2019-master/CVPR2019-master/data/horse_disparity_median.mat");
+    N = example.N_guide;
 
-example = load("../../CVPR2019-master/CVPR2019-master/data/horse_disparity_median.mat");
-N = example.N_guide;
-
-test = zeros(size(N_guide,1),size(N_guide,2));
-figure;
-for i=1:size(N_test,1)
-    for j=1:size(N_test,2)
-        if(N_test(i,j,1) ~= 0 || N_test(i,j,2) ~= 0 || N_test(i,j,3) ~= 0)
-            test(i,j) = 255;
+    test = zeros(size(N_guide,1),size(N_guide,2));
+    figure;
+    for i=1:size(N_test,1)
+        for j=1:size(N_test,2)
+            if(N_test(i,j,1) ~= 0 || N_test(i,j,2) ~= 0 || N_test(i,j,3) ~= 0)
+                test(i,j) = 255;
+            end
         end
     end
+    imshow(test);
+    %{%}
+    save(base_path + "\lumione_pc\data", 'polAng','cam1', 'N_guide')
+else 
+    save(base_path + "\lumione_pc\data_noNguide", 'polAng','cam1')
 end
-imshow(test);
-%{%}
-save(base_path + "\lumione_pc\data", 'polAng','cam1', 'N_test')
 disp("wrote data");
 
 % Run linear height from polarisation
-[ height ] = HfPol( theta_est_combined,min(1,Iun_est),phi_est_combined,s,mask,false,spec );
+[ height ] = HfPol( theta_est_combined,min(1,Iun_est),phi_est_combined,s,mask,true,spec );
 
 % Visualise
 %{

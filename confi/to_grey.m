@@ -1,5 +1,5 @@
 %Variables
-base_path = "Z:\Students\lslusny\datasets\Kugel\v2_point\x\data\cam0";
+base_path = "Z:\Students\lslusny\datasets\Adapterplatte\v2_point_dunkel\x\data\cam0";
 %{
 S1 = dir(fullfile(base_path,'*'));
 N = setdiff({S1([S1.isdir]).name},{'.','..'});

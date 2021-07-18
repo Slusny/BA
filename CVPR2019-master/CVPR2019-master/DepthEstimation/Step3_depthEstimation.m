@@ -6,6 +6,8 @@ addpath('locu')
 addpath('../data') 
 
 %% Load and set datas
+%used:  normal1, xyZ, cam1.mask, cam1.cameraParam.IntrinsicMatrix, cam1.P,
+%       cam1.specmask, cam1.light, cam1.rho_est, cam1.phi_est, cam1.Iun_est;
 load('horse_corrected_normal_Large.mat');  % Corrected normal from Graphic model
 load('horse_disparity_large.mat');         % Disparity map from stereo
 %load('Z:\Students\lslusny\datasets\Defect1\v7\x\lumione_pc\th0.9_NN1001\data.mat');

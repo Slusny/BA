@@ -1,10 +1,10 @@
 %Variables
-base_path = "Z:\Students\lslusny\datasets\Kugel\v1\x";
+base_path = "Z:\Students\lslusny\datasets\Ring\v1_point\x";
 pixel_size = 0.0000069; % in m;
 img_size_x = 1024;
 img_size_y = 1224;
-step_size = 0.002000; % in m;
-make_image = false;
+step_size = 0.005000; % in m;
+make_image = true;
 count = 0
 
 Cam_string = [];
@@ -60,11 +60,33 @@ for i = 1:numel(N)
         ];
     Cam_ordering{pos} = cam_str;
     if make_image
-        RGB = imread(strcat(base_path, "\data\", char(N{i}), "\pol\pol_0°.png"));
-        I = rgb2gray(RGB);
+        
+        cam_path = D + "\" + N(i);
+        L = cam_path + "\pol\";
+        mkdir(cam_path, "\mono");
+        mkdir(cam_path, "\color");
+        S = dir(fullfile(L,'*.png'));
+        for k = 1:numel(S) % remove dots
+            RGB = imread(L + S(k).name);
+            I = flip(rgb2gray(RGB)', 1);
+            RGB = flip(permute(RGB,[2 1 3]),1);
+            file = regexp(S(k).name,'\d+','match') + "_deg.png";
+            imwrite(I,cam_path + "\mono\" +file)
+            imwrite(RGB, cam_path + "\color\" +file)
+            
+            if regexp(S(k).name,'_0')
+                mkdir(base_path+"\lumione_pc\h", "\cam" + (pos -1))
+                imwrite(I',base_path + "\lumione_pc\h\cam" + (pos-1) + "\img_0.png")
+            end
+                
+        end
+        rmdir(cam_path + "\pol", 's')
+        
+        %RGB = imread(strcat(base_path, "\data\", char(N{i}), "\pol\pol_0°.png"));
+        %I = rgb2gray(RGB);
         %I = imrotate(I,-90);
-        mkdir(base_path+"\lumione_pc\h", "\cam" + (pos -1))
-        imwrite(I',base_path + "\lumione_pc\h\cam" + (pos-1) + "\img_0.png")
+        %mkdir(base_path+"\lumione_pc\h", "\cam" + (pos -1))
+        %imwrite(I',base_path + "\lumione_pc\h\cam" + (pos-1) + "\img_0.png")
     end
     count=count+1
         
